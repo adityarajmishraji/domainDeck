@@ -51,7 +51,13 @@ const globalRateLimiter = rateLimit({
 app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://domain-deck-frontend.vercel.app" // apna actual frontend URL
+  ],
+  credentials: true
+}));
 app.use(helmet());
 app.use(cookieParser());
 
@@ -96,21 +102,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-const startServer = async () => {
-  try {
-    await connectDB(process.env.MONGODB_URI);
-    app
-      .listen(PORT, () => {
-        console.log(`Server is running on PORT ${process.env.PORT}`);
-      })
-      .on("error", (error) => {
-        console.log("Error starting server", error);
-        process.exit(1);
-      });
-  } catch (error) {
-    console.log("Error starting server", error);
-    process.exit(1);
-  }
-};
-startServer();
-module.exports = app;
+await connectDB(process.env.MONGODB_URI);
+
+export default app;
